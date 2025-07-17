@@ -1,15 +1,16 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "https://url-shorther.vercel.app/",
+  baseURL: process.env.NODE_ENV === 'production' 
+    ? "https://url-shorther.vercel.app/" 
+    : "http://localhost:3000/",
   timeout: 10000,
-  withCredentials:true
+  withCredentials: true
 });
 
 // Request interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
-    // You can modify request config here (add auth tokens, etc.)
     return config;
   },
   (error) => {
@@ -20,14 +21,12 @@ axiosInstance.interceptors.request.use(
 // Response interceptor for handling errors
 axiosInstance.interceptors.response.use(
   (response) => {
-    // Any status code within the range of 2xx
     return response;
   },
   (error) => {
     let errorMessage = "Something went wrong";
 
     if (error.response) {
-      // The server responded with a status code outside the 2xx range
       const status = error.response.status;
       const data = error.response.data;
 
@@ -37,7 +36,6 @@ axiosInstance.interceptors.response.use(
           break;
         case 401:
           errorMessage = "Unauthorized access";
-          // Clear token on 401 errors
           localStorage.removeItem('token');
           break;
         case 404:
@@ -53,14 +51,11 @@ axiosInstance.interceptors.response.use(
           errorMessage = data.message || "An error occurred";
       }
     } else if (error.request) {
-      // The request was made but no response was received
       errorMessage = "No response from server. Please check your connection";
     } else {
-      // Something happened in setting up the request
       errorMessage = error.message;
     }
 
-    // Create a new error with the formatted message
     const formattedError = new Error(errorMessage);
     formattedError.originalError = error;
     formattedError.response = error.response;
@@ -68,4 +63,5 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(formattedError);
   }
 );
+
 export default axiosInstance;

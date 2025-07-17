@@ -19,15 +19,39 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors({
-  origin: "https://url-shorther-zjxm.vercel.app/",
+
+// CORS configuration for both development and production
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://localhost:3001',
+      'https://url-shorther-zjxm.vercel.app',
+      process.env.FRONTEND_URL
+    ].filter(Boolean); // Remove undefined values
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
-}));
-app.use(attchUser)
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+  exposedHeaders: ['Set-Cookie']
+};
+
+app.use(cors(corsOptions));
+app.use(attchUser);
 app.use("/api/create", shortUrlRoute);
 app.use("/api/user", userRoute);
 app.use("/api/user-url", userUrlsRoute);
-app.get("/:id" , RedirectToUrlController);
+app.get("/:id", RedirectToUrlController);
 
 app.use(errorHandler);  
 app.listen(3000, () => {
