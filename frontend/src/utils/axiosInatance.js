@@ -1,9 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.NODE_ENV === 'production' 
-    ? "https://url-shorther.vercel.app/" 
-    : "http://localhost:3000/",
+  baseURL: import.meta.env.REACT_APP_API_URL,
   timeout: 10000,
   withCredentials: true
 });
