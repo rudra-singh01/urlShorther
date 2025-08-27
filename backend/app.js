@@ -27,10 +27,8 @@ const corsOptions = {
     if (!origin) return callback(null, true);
     
     const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'http://localhost:3001',
       'https://url-shorther-zjxm.vercel.app',
+      'http://localhost:5173',  
       process.env.FRONTEND_URL
     ].filter(Boolean); // Remove undefined values
     
